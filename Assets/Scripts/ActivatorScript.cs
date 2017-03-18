@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -61,7 +60,7 @@ public class ActivatorScript : MonoBehaviour
     {
         obj.GetComponentInChildren<EggNote>().Speed = 0;
         obj.layer =10;
-        obj.transform.DOMove(new Vector3(0, 3.58f, 0), HurlTime);
+        obj.transform.DOMove(new Vector3(0, 1.5f, 0), HurlTime);
         obj.transform.DOScale(new Vector3(0.05f, 0.05f, 0.05f), HurlTime);
         StartCoroutine(TriggerHasiHit(obj));
       

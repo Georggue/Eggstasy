@@ -51,11 +51,12 @@ public class GameManager : MonoBehaviour
     private UnityAction TriggerUpdateText = delegate { };
     private int maxAmount = 1;
     private Text lvlUp;
+
     private void SpawnNote()
     {
         //list.Notes.Add(new Note{timePos = timer.Elapsed.TotalSeconds.ToString(CultureInfo.InvariantCulture
         List<int> existing = new List<int>();
-        var amount = Random.Range(1, maxAmount+1);
+        var amount = Random.Range(1, maxAmount + 1);
         for (int i = 0; i < amount; i++)
         {
             int column = 0;
@@ -76,13 +77,11 @@ public class GameManager : MonoBehaviour
             }
             else if (column > 3f)
             {
-                pos = new Vector3(2.8f - ((column-4) * 1f), 5.5f, 0f);
+                pos = new Vector3(2.8f - ((column - 4) * 1f), 5.5f, 0f);
             }
             var note = Instantiate(NotePrefab, pos, Quaternion.identity);
-            if(SelectedLevel == 2)note.GetComponent<EggNote>().Speed *= 2;
+            if (SelectedLevel == 2) note.GetComponent<EggNote>().Speed *= 2;
         }
-
-        
     }
 
     private void Serialize()
@@ -110,7 +109,7 @@ public class GameManager : MonoBehaviour
             var column = Random.Range(0, 7);
             Debug.Log(column);
             var yPos = Convert.ToDouble(note.timePos);
-            var pos = new Vector3(-4.5f + column * 1.5f, 6 + (float) yPos, 0f);
+            var pos = new Vector3(-4.5f + column * 1.5f, 6 + (float)yPos, 0f);
             Instantiate(NotePrefab, pos, Quaternion.identity);
         }
     }
@@ -121,28 +120,28 @@ public class GameManager : MonoBehaviour
             currentHasiHealth--;
         TriggerUpdateText();
         StartCoroutine(HasiHit());
-       
     }
 
     private IEnumerator HasiHit()
     {
         Color col = new Color(1f, 99f / 255f, 99f / 255f);
         hasi.color = col;
-       // HasiText.color = col;
+        // HasiText.color = col;
         yield return new WaitForSeconds(0.05f);
         hasi.color = Color.white;
         //HasiText.color = Color.black;
-        hasiDamageImg.fillAmount = 1f-(float)currentHasiHealth/HasiMaxHealth ;
+        hasiDamageImg.fillAmount = 1f - (float)currentHasiHealth / HasiMaxHealth;
     }
 
     private int fireCounter = 0;
+
     private void DecrementCityHealth()
     {
-        if(currentCityHealth>0)
+        if (currentCityHealth > 0)
             currentCityHealth--;
         TriggerUpdateText();
-        houseLeftImg.fillAmount = 1f - (float) currentCityHealth / CityMaxHealth;
-        houseRightImg.fillAmount = 1f - (float) currentCityHealth / CityMaxHealth;
+        houseLeftImg.fillAmount = 1f - (float)currentCityHealth / CityMaxHealth;
+        houseRightImg.fillAmount = 1f - (float)currentCityHealth / CityMaxHealth;
         StartCoroutine(CityHit());
         if (currentCityHealth % 5 == 0)
         {
@@ -151,8 +150,33 @@ public class GameManager : MonoBehaviour
                 Fires[fireCounter].SetActive(true);
                 fireCounter++;
             }
-           
         }
+    }
+
+    public void CloseGame()
+    {
+        Application.Quit();
+    }
+
+    public void StartGame(int level)
+    {
+        SelectedLevel = level;
+        var menu = GameObject.FindGameObjectWithTag("Menu");
+        menu.SetActive(false);
+        timer.Reset();
+        timer.Start();
+        if (SelectedLevel == 1)
+        {
+            Frequency = Level1BPM / 120f;
+        }
+        else if (SelectedLevel == 2)
+        {
+            Frequency = Level2BPM / 240f;
+        }
+        TriggerNote += SpawnNote;
+        GameObject.FindObjectOfType<CameraSound>().StartMusic(SelectedLevel);
+        StartCoroutine(StartTimer());
+        StartCoroutine(Difficulty());
     }
 
     private IEnumerator CityHit()
@@ -161,7 +185,7 @@ public class GameManager : MonoBehaviour
         city.color = col;
         //CityText.color = Color.white;
         yield return new WaitForSeconds(0.05f);
-       // CityText.color = Color.black;
+        // CityText.color = Color.black;
         city.color = Color.white;
     }
 
@@ -175,38 +199,26 @@ public class GameManager : MonoBehaviour
         houseLeftImg = GameObject.FindGameObjectsWithTag("HousesDamage")[0].GetComponent<Image>();
         houseRightImg = GameObject.FindGameObjectsWithTag("HousesDamage")[1].GetComponent<Image>();
 
-         RequestHasiHit += DecrementHasiHealth;
-         RequestCityHit += DecrementCityHealth;
+        RequestHasiHit += DecrementHasiHealth;
+        RequestCityHit += DecrementCityHealth;
         TriggerUpdateText += UpdateTexts;
         //HasiText = HasiHealthText.GetComponentInChildren<Text>();
-      //  CityText = CityHealthText.GetComponentInChildren<Text>();
+        //  CityText = CityHealthText.GetComponentInChildren<Text>();
         EndText = GameEndText.GetComponentInChildren<Text>();
         currentHasiHealth = HasiMaxHealth;
         currentCityHealth = CityMaxHealth;
         //HasiText.text = "Hasi: " + HasiMaxHealth;
         //CityText.text = "City: " + CityMaxHealth;
-        timer.Reset();
-        timer.Start();
+
         //Deserialize();
         //GenerateNoteList();
         //GameObject.FindObjectOfType<CameraSound>().BeatFired += SpawnNote;
         //GameObject.FindObjectOfType<AudioProcessor>().PlaybackFinished += Serialize;
-        if (SelectedLevel == 1)
-        {
-            Frequency = Level1BPM / 120f;
-        }else if (SelectedLevel == 2)
-        {
-            Frequency = Level2BPM / 240f;
-        }
-        TriggerNote += SpawnNote;
-        GameObject.FindObjectOfType<CameraSound>().StartMusic(SelectedLevel);
-        StartCoroutine(StartTimer());
-        StartCoroutine(Difficulty());
     }
 
     private void UpdateTexts()
     {
-      //  HasiText.text = "Hasi: " + currentHasiHealth;
+        //  HasiText.text = "Hasi: " + currentHasiHealth;
         //CityText.text = "City: " + currentCityHealth;
         if (currentCityHealth == 0)
         {
@@ -228,13 +240,14 @@ public class GameManager : MonoBehaviour
     }
 
     private bool difficultySwitch = false;
+
     private IEnumerator Difficulty()
     {
         for (var j = 0; j < 3; j++)
         {
             float waitForSeconds = 25f;
             if (SelectedLevel == 2) waitForSeconds /= 2;
-             yield return new WaitForSeconds(waitForSeconds);
+            yield return new WaitForSeconds(waitForSeconds);
             if (difficultySwitch)
             {
                 Frequency /= 1.5f;
@@ -245,7 +258,6 @@ public class GameManager : MonoBehaviour
             }
             StartCoroutine(ShowLvlUp(difficultySwitch));
             difficultySwitch = !difficultySwitch;
-            
         }
     }
 
@@ -272,6 +284,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape)) SceneManager.LoadScene(0);
     }
 
     public class Note
