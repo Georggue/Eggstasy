@@ -28,7 +28,8 @@ public class GameManager : MonoBehaviour
     public float Frequency;
     public GameObject GameEndText;
     public GameObject LevelUpText;
-
+    public GameObject GameWinScreen;
+    public GameObject GameLoseScreen;
     private SpriteRenderer hasi;
     private Image hasiDamageImg;
     private Image houseLeftImg;
@@ -218,16 +219,19 @@ public class GameManager : MonoBehaviour
 
     private void UpdateTexts()
     {
+        if (endOfGame) return;
         //  HasiText.text = "Hasi: " + currentHasiHealth;
         //CityText.text = "City: " + currentCityHealth;
         if (currentCityHealth == 0)
         {
-            EndText.text = "You Lose!";
+            //EndText.text = "You Lose!";
+            GameLoseScreen.SetActive(true);
             endOfGame = true;
         }
         if (currentHasiHealth == 0)
         {
-            EndText.text = "You Win!";
+            GameWinScreen.SetActive(true);
+            //EndText.text = "You Win!";
             endOfGame = true;
         }
         if (endOfGame) StartCoroutine(Reset());
@@ -235,7 +239,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator Reset()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(4f);
         SceneManager.LoadScene(0);
     }
 
