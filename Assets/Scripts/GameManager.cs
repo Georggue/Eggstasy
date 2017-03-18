@@ -2,60 +2,57 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Threading;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
-    public float Frequency;
-    public GameObject HasiHealthText;
     public GameObject CityHealthText;
-    public GameObject GameEndText;
-    public int HasiMaxHealth;
     public int CityMaxHealth;
-    private int currentHasiHealth;
-    private int currentCityHealth;
-    private Text HasiText;
     private Text CityText;
+    private int currentCityHealth;
+    private int currentHasiHealth;
+    private bool endOfGame;
     private Text EndText;
-    [NotNull] public GameObject NotePrefab;
-    private UnityAction TriggerNote = delegate {  };
+    public float Frequency;
+    public GameObject GameEndText;
 
-    public class Note
-    {
-        [XmlAttribute("timePos")] public string timePos;
-    }
-
-    [XmlRoot("NoteList")]
-    public class NoteList
-    {
-        [XmlArray("Notes")]
-        [XmlArrayItem("Note")]
-        public List<Note> Notes = new List<Note>();
-    }
-
+    private SpriteRenderer hasi;
+    private SpriteRenderer city;
+    public GameObject HasiGameObject;
+    public GameObject CityGameObject;
+    public GameObject HasiHealthText;
+    public int HasiMaxHealth;
+    private Text HasiText;
+    public float SpawnOffset;
     private NoteList list = new NoteList();
-    private Stopwatch timer = new Stopwatch();
+    [NotNull] public GameObject NotePrefab;
     private List<GameObject> Notes = new List<GameObject>();
+    public UnityAction RequestCityHit = delegate { };
+    public UnityAction RequestHasiHit = delegate { };
+    private readonly Stopwatch timer = new Stopwatch();
+    private UnityAction TriggerNote = delegate { };
+
+    private UnityAction TriggerUpdateText = delegate { };
+
     private void SpawnNote()
     {
         //list.Notes.Add(new Note{timePos = timer.Elapsed.TotalSeconds.ToString(CultureInfo.InvariantCulture)});
-        int column = Random.Range(0, 7);
-        Vector3 pos = new Vector3(-4.5f + column * 1.5f, 5.5f, 0f);
+        var column = Random.Range(0, 7);
+        var pos = new Vector3(-4.5f + column * 1.5f, 5.5f, 0f);
         Instantiate(NotePrefab, pos, Quaternion.identity);
     }
 
     private void Serialize()
     {
-          XmlSerializer serializer = new XmlSerializer(typeof (NoteList));
+        var serializer = new XmlSerializer(typeof(NoteList));
         using (var stream = new FileStream(@"D:\song1.xml", FileMode.Create))
         {
             serializer.Serialize(stream, list);
@@ -64,10 +61,10 @@ public class GameManager : MonoBehaviour
 
     private void Deserialize()
     {
-        XmlSerializer serializer = new XmlSerializer(typeof(NoteList));
+        var serializer = new XmlSerializer(typeof(NoteList));
         using (var stream = new FileStream(@"D:\song1.xml", FileMode.Open))
         {
-           list =  serializer.Deserialize(stream) as NoteList;
+            list = serializer.Deserialize(stream) as NoteList;
         }
     }
 
@@ -75,30 +72,54 @@ public class GameManager : MonoBehaviour
     {
         foreach (var note in list.Notes)
         {
-            int column = Random.Range(0, 7);
-            UnityEngine.Debug.Log(column);
-            double yPos = Convert.ToDouble(note.timePos);
-            Vector3 pos = new Vector3(-4.5f+(column*1.5f),6+ (float)yPos, 0f);
+            var column = Random.Range(0, 7);
+            Debug.Log(column);
+            var yPos = Convert.ToDouble(note.timePos);
+            var pos = new Vector3(-4.5f + column * 1.5f, 6 + (float) yPos, 0f);
             Instantiate(NotePrefab, pos, Quaternion.identity);
         }
     }
-    
+
     private void DecrementHasiHealth()
     {
-        currentHasiHealth--;
+        if (currentHasiHealth > 0)
+            currentHasiHealth--;
         TriggerUpdateText();
+        StartCoroutine(HasiHit());
     }
+
+    private IEnumerator HasiHit()
+    {
+        Color col = new Color(1f, 99f / 255f, 99f / 255f);
+        hasi.color = col;
+        HasiText.color = col;
+        yield return new WaitForSeconds(0.05f);
+        hasi.color = Color.white;
+        HasiText.color = Color.black;
+    }
+
     private void DecrementCityHealth()
     {
-        currentCityHealth--;
+        if(currentCityHealth>0)
+            currentCityHealth--;
         TriggerUpdateText();
+        StartCoroutine(CityHit());
     }
-    UnityAction TriggerUpdateText = delegate {  };
-    public UnityAction RequestHasiHit = delegate { };
-    public UnityAction RequestCityHit = delegate { };
-    private bool endOfGame = false;
+
+    private IEnumerator CityHit()
+    {
+        Color col = new Color(1f, 99f / 255f, 99f / 255f);
+        city.color = col;
+        CityText.color = Color.white;
+        yield return new WaitForSeconds(0.05f);
+        CityText.color = Color.black;
+        city.color = Color.white;
+    }
+
     private void Start()
     {
+        city = CityGameObject.GetComponentInChildren<SpriteRenderer>();
+        hasi = HasiGameObject.GetComponentInChildren<SpriteRenderer>();
         RequestHasiHit += DecrementHasiHealth;
         RequestCityHit += DecrementCityHealth;
         TriggerUpdateText += UpdateTexts;
@@ -134,7 +155,7 @@ public class GameManager : MonoBehaviour
             EndText.text = "You Win!";
             endOfGame = true;
         }
-       if(endOfGame) StartCoroutine(Reset());
+        if (endOfGame) StartCoroutine(Reset());
     }
 
     private IEnumerator Reset()
@@ -145,9 +166,9 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator Difficulty()
     {
-        for (int j = 0; j < 3; j++)
+        for (var j = 0; j < 3; j++)
         {
-           yield return new WaitForSeconds(20);
+            yield return new WaitForSeconds(20);
             Frequency /= 2f;
         }
     }
@@ -158,12 +179,21 @@ public class GameManager : MonoBehaviour
         {
             TriggerNote();
             yield return new WaitForSeconds(Frequency);
-            
         }
     }
 
     private void Update()
     {
-       
+    }
+
+    public class Note
+    {
+        [XmlAttribute("timePos")] public string timePos;
+    }
+
+    [XmlRoot("NoteList")]
+    public class NoteList
+    {
+        [XmlArray("Notes")] [XmlArrayItem("Note")] public List<Note> Notes = new List<Note>();
     }
 }

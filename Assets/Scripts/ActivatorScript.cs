@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,6 +13,7 @@ public class ActivatorScript : MonoBehaviour
     private GameObject note;
     private Color old;
     private GameManager gm;
+    private bool inputAllowed = true;
     void Awake()
     {
         sr = GetComponentInChildren<SpriteRenderer>();
@@ -29,16 +31,29 @@ public class ActivatorScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(Key))
-        {
-            StartCoroutine(Pressed());
-        }
+        if (!inputAllowed) return;
+        
         if (Input.GetKeyDown(Key) && active)
         {
+            StartCoroutine(Pressed());
             Debug.Log("Destroy");
-            ThrowBack(note);
-             active = false;
+            if(note != null)
+                ThrowBack(note);
+            active = false;
         }
+        else if(Input.GetKeyDown(Key) && !active)
+        {
+            StartCoroutine(Disable());
+        }
+    }
+
+    private IEnumerator Disable()
+    {
+        inputAllowed = false;
+        sr.color = Color.red;
+        yield return new WaitForSeconds(0.5f);
+        sr.color = old;
+        inputAllowed = true;
     }
 
     public UnityAction HasiHit = delegate {  };
