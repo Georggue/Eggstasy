@@ -16,6 +16,16 @@ using Random = UnityEngine.Random;
 public class GameManager : MonoBehaviour
 {
     public float Frequency;
+    public GameObject HasiHealthText;
+    public GameObject CityHealthText;
+    public GameObject GameEndText;
+    public int HasiMaxHealth;
+    public int CityMaxHealth;
+    private int currentHasiHealth;
+    private int currentCityHealth;
+    private Text HasiText;
+    private Text CityText;
+    private Text EndText;
     [NotNull] public GameObject NotePrefab;
     private UnityAction TriggerNote = delegate {  };
 
@@ -72,8 +82,33 @@ public class GameManager : MonoBehaviour
             Instantiate(NotePrefab, pos, Quaternion.identity);
         }
     }
+    
+    private void DecrementHasiHealth()
+    {
+        currentHasiHealth--;
+        TriggerUpdateText();
+    }
+    private void DecrementCityHealth()
+    {
+        currentCityHealth--;
+        TriggerUpdateText();
+    }
+    UnityAction TriggerUpdateText = delegate {  };
+    public UnityAction RequestHasiHit = delegate { };
+    public UnityAction RequestCityHit = delegate { };
+    private bool endOfGame = false;
     private void Start()
     {
+        RequestHasiHit += DecrementHasiHealth;
+        RequestCityHit += DecrementCityHealth;
+        TriggerUpdateText += UpdateTexts;
+        HasiText = HasiHealthText.GetComponentInChildren<Text>();
+        CityText = CityHealthText.GetComponentInChildren<Text>();
+        EndText = GameEndText.GetComponentInChildren<Text>();
+        currentHasiHealth = HasiMaxHealth;
+        currentCityHealth = CityMaxHealth;
+        HasiText.text = "Hasi: " + HasiMaxHealth;
+        CityText.text = "City: " + CityMaxHealth;
         timer.Reset();
         timer.Start();
         //Deserialize();
@@ -84,7 +119,30 @@ public class GameManager : MonoBehaviour
         StartCoroutine(StartTimer());
         StartCoroutine(Difficulty());
     }
-   
+
+    private void UpdateTexts()
+    {
+        HasiText.text = "Hasi: " + currentHasiHealth;
+        CityText.text = "City: " + currentCityHealth;
+        if (currentCityHealth == 0)
+        {
+            EndText.text = "You Lose!";
+            endOfGame = true;
+        }
+        if (currentHasiHealth == 0)
+        {
+            EndText.text = "You Win!";
+            endOfGame = true;
+        }
+       if(endOfGame) StartCoroutine(Reset());
+    }
+
+    private IEnumerator Reset()
+    {
+        yield return new WaitForSeconds(3f);
+        SceneManager.LoadScene(0);
+    }
+
     private IEnumerator Difficulty()
     {
         for (int j = 0; j < 3; j++)
