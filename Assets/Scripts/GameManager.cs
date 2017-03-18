@@ -48,8 +48,8 @@ public class GameManager : MonoBehaviour
     private void SpawnNote()
     {
         //list.Notes.Add(new Note{timePos = timer.Elapsed.TotalSeconds.ToString(CultureInfo.InvariantCulture)});
-        int column = Random.Range(0, 6);
-        Vector3 pos = new Vector3(-3.75f + column * 1.5f, 5.5f, 0f);
+        int column = Random.Range(0, 7);
+        Vector3 pos = new Vector3(-4.5f + column * 1.5f, 5.5f, 0f);
         Instantiate(NotePrefab, pos, Quaternion.identity);
     }
 
@@ -75,10 +75,10 @@ public class GameManager : MonoBehaviour
     {
         foreach (var note in list.Notes)
         {
-            int column = Random.Range(0, 6);
+            int column = Random.Range(0, 7);
             UnityEngine.Debug.Log(column);
             double yPos = Convert.ToDouble(note.timePos);
-            Vector3 pos = new Vector3(-3.75f+column*1.5f,6+ (float)yPos, 0f);
+            Vector3 pos = new Vector3(-4.5f+(column*1.5f),6+ (float)yPos, 0f);
             Instantiate(NotePrefab, pos, Quaternion.identity);
         }
     }

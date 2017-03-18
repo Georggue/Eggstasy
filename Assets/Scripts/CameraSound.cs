@@ -8,7 +8,7 @@ public class CameraSound : MonoBehaviour
     public UnityAction BeatFired = delegate { };
     void Start()
     {
-        GetComponent<AudioSource>().PlayDelayed(3.5f);
+        GetComponent<AudioSource>().PlayDelayed(3.5f/2);
         //Select the instance of AudioProcessor and pass a reference
         //to this object
         AudioProcessor processor = FindObjectOfType<AudioProcessor>();
