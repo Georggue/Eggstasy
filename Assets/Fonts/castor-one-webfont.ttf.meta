@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: a03894e2f4271a5438c4f068c2039e35
+timeCreated: 1489846105
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 60
+  forceTextureCase: 0
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Castor One
+  fontNames:
+  - Castor One
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     private Text EndText;
     public float Frequency;
     public GameObject GameEndText;
+    public GameObject LevelUpText;
 
     private SpriteRenderer hasi;
     private SpriteRenderer city;
@@ -39,9 +40,10 @@ public class GameManager : MonoBehaviour
     public UnityAction RequestHasiHit = delegate { };
     private readonly Stopwatch timer = new Stopwatch();
     private UnityAction TriggerNote = delegate { };
-
+    public List<GameObject> Fires;
     private UnityAction TriggerUpdateText = delegate { };
     private int maxAmount = 1;
+    private Text lvlUp;
     private void SpawnNote()
     {
         //list.Notes.Add(new Note{timePos = timer.Elapsed.TotalSeconds.ToString(CultureInfo.InvariantCulture
@@ -123,12 +125,22 @@ public class GameManager : MonoBehaviour
         HasiText.color = Color.black;
     }
 
+    private int fireCounter = 0;
     private void DecrementCityHealth()
     {
         if(currentCityHealth>0)
             currentCityHealth--;
         TriggerUpdateText();
         StartCoroutine(CityHit());
+        if (currentCityHealth % 5 == 0)
+        {
+            if (fireCounter < Fires.Count)
+            {
+                Fires[fireCounter].SetActive(true);
+                fireCounter++;
+            }
+           
+        }
     }
 
     private IEnumerator CityHit()
@@ -143,6 +155,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        lvlUp = LevelUpText.GetComponentInChildren<Text>();
         city = CityGameObject.GetComponentInChildren<SpriteRenderer>();
         hasi = HasiGameObject.GetComponentInChildren<SpriteRenderer>();
         RequestHasiHit += DecrementHasiHealth;
@@ -203,9 +216,22 @@ public class GameManager : MonoBehaviour
             {
                 maxAmount++;
             }
+            StartCoroutine(ShowLvlUp(difficultySwitch));
             difficultySwitch = !difficultySwitch;
-
+            
         }
+    }
+
+    private IEnumerator ShowLvlUp(bool difficulty)
+    {
+        if (difficulty)
+            lvlUp.text = "Speed up";
+        else
+        {
+            lvlUp.text = "Difficulty up";
+        }
+        yield return new WaitForSeconds(1.5f);
+        lvlUp.text = "";
     }
 
     private IEnumerator StartTimer()
