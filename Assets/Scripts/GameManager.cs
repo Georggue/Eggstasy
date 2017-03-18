@@ -14,6 +14,7 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
+    public int SelectedLevel;
     public GameObject CityHealthText;
     public int CityMaxHealth;
     private Text CityText;
@@ -21,6 +22,8 @@ public class GameManager : MonoBehaviour
     private int currentHasiHealth;
     private bool endOfGame;
     private Text EndText;
+    public int Level1BPM;
+    public int Level2BPM;
     public float Frequency;
     public GameObject GameEndText;
     public GameObject LevelUpText;
@@ -71,7 +74,8 @@ public class GameManager : MonoBehaviour
             {
                 pos = new Vector3(2.8f - ((column-4) * 1f), 5.5f, 0f);
             }
-            Instantiate(NotePrefab, pos, Quaternion.identity);
+            var note = Instantiate(NotePrefab, pos, Quaternion.identity);
+            if(SelectedLevel == 2)note.GetComponent<EggNote>().Speed *= 2;
         }
 
         
@@ -174,7 +178,15 @@ public class GameManager : MonoBehaviour
         //GenerateNoteList();
         //GameObject.FindObjectOfType<CameraSound>().BeatFired += SpawnNote;
         //GameObject.FindObjectOfType<AudioProcessor>().PlaybackFinished += Serialize;
+        if (SelectedLevel == 1)
+        {
+            Frequency = Level1BPM / 120f;
+        }else if (SelectedLevel == 2)
+        {
+            Frequency = Level2BPM / 240f;
+        }
         TriggerNote += SpawnNote;
+        GameObject.FindObjectOfType<CameraSound>().StartMusic(SelectedLevel);
         StartCoroutine(StartTimer());
         StartCoroutine(Difficulty());
     }
@@ -207,7 +219,9 @@ public class GameManager : MonoBehaviour
     {
         for (var j = 0; j < 3; j++)
         {
-            yield return new WaitForSeconds(25);
+            float waitForSeconds = 25f;
+            if (SelectedLevel == 2) waitForSeconds /= 2;
+             yield return new WaitForSeconds(waitForSeconds);
             if (difficultySwitch)
             {
                 Frequency /= 1.5f;
