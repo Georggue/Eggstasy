@@ -226,11 +226,15 @@ public class GameManager : MonoBehaviour
         {
             //EndText.text = "You Lose!";
             GameLoseScreen.SetActive(true);
+            GameObject.FindObjectOfType<CameraSound>().StopMusic();
+            GameLoseScreen.GetComponentInChildren<AudioSource>().Play();
             endOfGame = true;
         }
         if (currentHasiHealth == 0)
         {
             GameWinScreen.SetActive(true);
+            GameObject.FindObjectOfType<CameraSound>().StopMusic();
+            GameWinScreen.GetComponentInChildren<AudioSource>().Play();
             //EndText.text = "You Win!";
             endOfGame = true;
         }
@@ -239,7 +243,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator Reset()
     {
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSeconds(10.5f);
         SceneManager.LoadScene(0);
     }
 

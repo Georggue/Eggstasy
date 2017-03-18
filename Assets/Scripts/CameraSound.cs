@@ -28,7 +28,11 @@ public class CameraSound : MonoBehaviour
                 break;
         }
     }
-  
+    public void StopMusic()
+    {
+       Level1Music.Stop();
+        Level2Music.Stop();
+    }
 
     //this event will be called every time a beat is detected.
     //Change the threshold parameter in the inspector
