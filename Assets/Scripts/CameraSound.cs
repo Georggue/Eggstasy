@@ -24,14 +24,14 @@ public class CameraSound : MonoBehaviour
         {
             case 1: Level1Music.PlayDelayed(2f);
                 break;
-            case 2: Level2Music.PlayDelayed(1f);
+            case 2: Level2Music.PlayDelayed(0.9f);
                 break;
         }
     }
     public void StopMusic()
     {
        Level1Music.Stop();
-        Level2Music.Stop();
+       Level2Music.Stop();
     }
 
     //this event will be called every time a beat is detected.
