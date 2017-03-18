@@ -41,13 +41,38 @@ public class GameManager : MonoBehaviour
     private UnityAction TriggerNote = delegate { };
 
     private UnityAction TriggerUpdateText = delegate { };
-
+    private int maxAmount = 1;
     private void SpawnNote()
     {
-        //list.Notes.Add(new Note{timePos = timer.Elapsed.TotalSeconds.ToString(CultureInfo.InvariantCulture)});
-        var column = Random.Range(0, 7);
-        var pos = new Vector3(-4.5f + column * 1.5f, 5.5f, 0f);
-        Instantiate(NotePrefab, pos, Quaternion.identity);
+        //list.Notes.Add(new Note{timePos = timer.Elapsed.TotalSeconds.ToString(CultureInfo.InvariantCulture
+        List<int> existing = new List<int>();
+        var amount = Random.Range(1, maxAmount+1);
+        for (int i = 0; i < amount; i++)
+        {
+            int column = 0;
+            bool newItem = false;
+            while (!newItem)
+            {
+                column = Random.Range(0, 7);
+                if (!existing.Contains(column) && column != 3)
+                {
+                    newItem = true;
+                }
+            }
+            existing.Add(column);
+            Vector3 pos = Vector3.zero;
+            if (column < 3f)
+            {
+                pos = new Vector3(-2.8f + column * 1f, 5.5f, 0f);
+            }
+            else if (column > 3f)
+            {
+                pos = new Vector3(2.8f - ((column-4) * 1f), 5.5f, 0f);
+            }
+            Instantiate(NotePrefab, pos, Quaternion.identity);
+        }
+
+        
     }
 
     private void Serialize()
@@ -164,12 +189,22 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
+    private bool difficultySwitch = false;
     private IEnumerator Difficulty()
     {
         for (var j = 0; j < 3; j++)
         {
-            yield return new WaitForSeconds(20);
-            Frequency /= 2f;
+            yield return new WaitForSeconds(25);
+            if (difficultySwitch)
+            {
+                Frequency /= 1.5f;
+            }
+            else
+            {
+                maxAmount++;
+            }
+            difficultySwitch = !difficultySwitch;
+
         }
     }
 

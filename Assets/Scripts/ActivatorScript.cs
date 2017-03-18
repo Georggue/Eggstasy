@@ -36,7 +36,6 @@ public class ActivatorScript : MonoBehaviour
         if (Input.GetKeyDown(Key) && active)
         {
             StartCoroutine(Pressed());
-            Debug.Log("Destroy");
             if(note != null)
                 ThrowBack(note);
             active = false;
@@ -78,7 +77,6 @@ public class ActivatorScript : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         active = true;
-        Debug.Log("active");
         if (other.gameObject.CompareTag("Note"))
         {
             note = other.gameObject;
