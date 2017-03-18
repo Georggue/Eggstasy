@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
     private readonly Stopwatch timer = new Stopwatch();
     private UnityAction TriggerNote = delegate { };
     public List<GameObject> Fires;
-    //private UnityAction TriggerUpdateText = delegate { };
+    private UnityAction TriggerUpdateText = delegate { };
     private int maxAmount = 1;
     private Text lvlUp;
     private void SpawnNote()
@@ -119,7 +119,7 @@ public class GameManager : MonoBehaviour
     {
         if (currentHasiHealth > 0)
             currentHasiHealth--;
-        //TriggerUpdateText();
+        TriggerUpdateText();
         StartCoroutine(HasiHit());
        
     }
@@ -140,7 +140,7 @@ public class GameManager : MonoBehaviour
     {
         if(currentCityHealth>0)
             currentCityHealth--;
-        //TriggerUpdateText();
+        TriggerUpdateText();
         houseLeftImg.fillAmount = 1f - (float) currentCityHealth / CityMaxHealth;
         houseRightImg.fillAmount = 1f - (float) currentCityHealth / CityMaxHealth;
         StartCoroutine(CityHit());
@@ -177,7 +177,7 @@ public class GameManager : MonoBehaviour
 
          RequestHasiHit += DecrementHasiHealth;
          RequestCityHit += DecrementCityHealth;
-        //TriggerUpdateText += UpdateTexts;
+        TriggerUpdateText += UpdateTexts;
         //HasiText = HasiHealthText.GetComponentInChildren<Text>();
       //  CityText = CityHealthText.GetComponentInChildren<Text>();
         EndText = GameEndText.GetComponentInChildren<Text>();
