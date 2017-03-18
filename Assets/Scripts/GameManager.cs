@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
+using DG.Tweening;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Events;
@@ -26,12 +27,15 @@ public class GameManager : MonoBehaviour
     public GameObject LevelUpText;
 
     private SpriteRenderer hasi;
+    private Image hasiDamageImg;
+    private Image houseLeftImg;
+    private Image houseRightImg;
     private SpriteRenderer city;
     public GameObject HasiGameObject;
     public GameObject CityGameObject;
     public GameObject HasiHealthText;
     public int HasiMaxHealth;
-    private Text HasiText;
+    //private Text HasiText;
     public float SpawnOffset;
     private NoteList list = new NoteList();
     [NotNull] public GameObject NotePrefab;
@@ -41,7 +45,7 @@ public class GameManager : MonoBehaviour
     private readonly Stopwatch timer = new Stopwatch();
     private UnityAction TriggerNote = delegate { };
     public List<GameObject> Fires;
-    private UnityAction TriggerUpdateText = delegate { };
+    //private UnityAction TriggerUpdateText = delegate { };
     private int maxAmount = 1;
     private Text lvlUp;
     private void SpawnNote()
@@ -111,18 +115,20 @@ public class GameManager : MonoBehaviour
     {
         if (currentHasiHealth > 0)
             currentHasiHealth--;
-        TriggerUpdateText();
+        //TriggerUpdateText();
         StartCoroutine(HasiHit());
+       
     }
 
     private IEnumerator HasiHit()
     {
         Color col = new Color(1f, 99f / 255f, 99f / 255f);
         hasi.color = col;
-        HasiText.color = col;
+       // HasiText.color = col;
         yield return new WaitForSeconds(0.05f);
         hasi.color = Color.white;
-        HasiText.color = Color.black;
+        //HasiText.color = Color.black;
+        hasiDamageImg.fillAmount = 1f-(float)currentHasiHealth/HasiMaxHealth ;
     }
 
     private int fireCounter = 0;
@@ -130,7 +136,9 @@ public class GameManager : MonoBehaviour
     {
         if(currentCityHealth>0)
             currentCityHealth--;
-        TriggerUpdateText();
+        //TriggerUpdateText();
+        houseLeftImg.fillAmount = 1f - (float) currentCityHealth / CityMaxHealth;
+        houseRightImg.fillAmount = 1f - (float) currentCityHealth / CityMaxHealth;
         StartCoroutine(CityHit());
         if (currentCityHealth % 5 == 0)
         {
@@ -147,9 +155,9 @@ public class GameManager : MonoBehaviour
     {
         Color col = new Color(1f, 99f / 255f, 99f / 255f);
         city.color = col;
-        CityText.color = Color.white;
+        //CityText.color = Color.white;
         yield return new WaitForSeconds(0.05f);
-        CityText.color = Color.black;
+       // CityText.color = Color.black;
         city.color = Color.white;
     }
 
@@ -158,16 +166,21 @@ public class GameManager : MonoBehaviour
         lvlUp = LevelUpText.GetComponentInChildren<Text>();
         city = CityGameObject.GetComponentInChildren<SpriteRenderer>();
         hasi = HasiGameObject.GetComponentInChildren<SpriteRenderer>();
-        RequestHasiHit += DecrementHasiHealth;
-        RequestCityHit += DecrementCityHealth;
-        TriggerUpdateText += UpdateTexts;
-        HasiText = HasiHealthText.GetComponentInChildren<Text>();
-        CityText = CityHealthText.GetComponentInChildren<Text>();
+        hasiDamageImg = GameObject.FindGameObjectWithTag("HasiDamage").GetComponent<Image>();
+
+        houseLeftImg = GameObject.FindGameObjectsWithTag("HousesDamage")[0].GetComponent<Image>();
+        houseRightImg = GameObject.FindGameObjectsWithTag("HousesDamage")[1].GetComponent<Image>();
+
+         RequestHasiHit += DecrementHasiHealth;
+         RequestCityHit += DecrementCityHealth;
+        //TriggerUpdateText += UpdateTexts;
+        //HasiText = HasiHealthText.GetComponentInChildren<Text>();
+      //  CityText = CityHealthText.GetComponentInChildren<Text>();
         EndText = GameEndText.GetComponentInChildren<Text>();
         currentHasiHealth = HasiMaxHealth;
         currentCityHealth = CityMaxHealth;
-        HasiText.text = "Hasi: " + HasiMaxHealth;
-        CityText.text = "City: " + CityMaxHealth;
+        //HasiText.text = "Hasi: " + HasiMaxHealth;
+        //CityText.text = "City: " + CityMaxHealth;
         timer.Reset();
         timer.Start();
         //Deserialize();
@@ -181,8 +194,8 @@ public class GameManager : MonoBehaviour
 
     private void UpdateTexts()
     {
-        HasiText.text = "Hasi: " + currentHasiHealth;
-        CityText.text = "City: " + currentCityHealth;
+      //  HasiText.text = "Hasi: " + currentHasiHealth;
+        //CityText.text = "City: " + currentCityHealth;
         if (currentCityHealth == 0)
         {
             EndText.text = "You Lose!";
