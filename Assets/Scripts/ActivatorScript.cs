@@ -13,6 +13,7 @@ public class ActivatorScript : MonoBehaviour
     private Color old;
     private GameManager gm;
     private bool inputAllowed = true;
+    private ParticleSystem BloodForTheBloodGod;
     void Awake()
     {
         sr = GetComponentInChildren<SpriteRenderer>();
@@ -22,24 +23,24 @@ public class ActivatorScript : MonoBehaviour
     void Start()
     {
         gm = FindObjectOfType<GameManager>();
-       
+        BloodForTheBloodGod = GameObject.FindGameObjectWithTag("HasiParticles").GetComponent<ParticleSystem>();
         old = sr.color;
-     
+
     }
 
     // Update is called once per frame
     void Update()
     {
         if (!inputAllowed) return;
-        
+
         if (Input.GetKeyDown(Key) && active)
         {
             StartCoroutine(Pressed());
-            if(note != null)
+            if (note != null)
                 ThrowBack(note);
             active = false;
         }
-        else if(Input.GetKeyDown(Key) && !active)
+        else if (Input.GetKeyDown(Key) && !active)
         {
             StartCoroutine(Disable());
         }
@@ -54,21 +55,23 @@ public class ActivatorScript : MonoBehaviour
         inputAllowed = true;
     }
 
-    public UnityAction HasiHit = delegate {  };
+    public UnityAction HasiHit = delegate { };
     public float HurlTime;
     private void ThrowBack(GameObject obj)
     {
         obj.GetComponentInChildren<EggNote>().Speed = 0;
-        obj.layer =10;
+        obj.layer = 10;
         obj.transform.DOMove(new Vector3(0, 1.5f, 0), HurlTime);
         obj.transform.DOScale(new Vector3(0.05f, 0.05f, 0.05f), HurlTime);
+        obj.transform.Rotate(Vector3.right,180f);
         StartCoroutine(TriggerHasiHit(obj));
-      
+       
     }
 
     private IEnumerator TriggerHasiHit(GameObject obj)
     {
         yield return new WaitForSeconds(HurlTime);
+        BloodForTheBloodGod.Play();
         gm.RequestHasiHit();
         Destroy(obj);
     }
@@ -79,7 +82,7 @@ public class ActivatorScript : MonoBehaviour
         if (other.gameObject.CompareTag("Note"))
         {
             note = other.gameObject;
-            
+
         }
     }
 
@@ -90,8 +93,8 @@ public class ActivatorScript : MonoBehaviour
 
     private IEnumerator Pressed()
     {
-       sr.color = new Color(0,0,0);
-       yield return new WaitForSeconds(0.05f);
-       sr.color = old;
+        sr.color = new Color(0, 0, 0);
+        yield return new WaitForSeconds(0.05f);
+        sr.color = old;
     }
 }
